@@ -99,14 +99,18 @@ class SimpleGeneticAlgorithm:
             self.crossover()
             self.reproduce()
 
+            x = list(map(lambda l:
+                         self.phenotype_func(l), self.population))
             y = list(map(lambda l: target_func(
                 self.phenotype_func(l)), self.population))
+            pairs = dict(zip(y, x))
 
             y_std = np.std(y)
             y_max = np.max(y)
+            x_max = pairs.get(y_max)
 
             print(
-                f'Поколение: {i + 1:3} | Максимум Y: {y_max:5.3f} | Дисперия Y: {y_std:5.3f}')
+                f'Поколение: {i + 1:3} | Максимум: ({x_max:5.3f}; {y_max:5.3f}) | Дисперия Y: {y_std:5.3f}')
 
             # self.plot(i + 1)
 
