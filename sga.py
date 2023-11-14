@@ -73,25 +73,25 @@ class SimpleGeneticAlgorithm:
 
                 self.population[i] = ''.join(mutated_chromosome)
 
-    # def plot(self, generation):
-    #     x_target = np.arange(-10, 10, 0.1)
-    #     y_target = list(map(lambda l: target_func(l), x_target))
+    def plot(self, generation):
+        x_target = np.arange(-10, 10, 0.1)
+        y_target = list(map(lambda l: target_func(l), x_target))
 
-    #     x_population = list(map(lambda l:
-    #                             self.phenotype_func(l), self.population))
-    #     y_population = list(map(lambda l: target_func(
-    #         self.phenotype_func(l)), self.population))
+        x_population = list(map(lambda l:
+                                self.phenotype_func(l), self.population))
+        y_population = list(map(lambda l: target_func(
+            self.phenotype_func(l)), self.population))
 
-    #     plt.xlabel('x')
-    #     plt.ylabel('y')
-    #     plt.title(f'Generation № {generation}')
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.title(f'Generation № {generation}')
 
-    #     plt.plot(x_target, y_target, 'r')
-    #     plt.scatter(x_population, y_population)
+        plt.plot(x_target, y_target, 'r')
+        plt.scatter(x_population, y_population)
 
-    #     plt.savefig(
-    #         PATH + f'{self.population_size}_{self.generation_cnt}_{self.crossover_prob}_{self.mutation_prob}_{generation}.png')
-    #     plt.clf()
+        plt.savefig(
+            PATH + f'{self.population_size}_{self.generation_cnt}_{self.crossover_prob}_{self.mutation_prob}_{generation}.png')
+        plt.clf()
 
     def execute(self):
         for i in range(0, self.generation_cnt):
@@ -113,7 +113,7 @@ class SimpleGeneticAlgorithm:
             print(
                 f'Поколение: {i + 1:3} | Максимум: ({x_max:5.3f}; {y_max:5.3f}) | Дисперия X: {x_std:5.3f} | Дисперия Y: {y_std:5.3f}')
 
-            # self.plot(i + 1)
+            self.plot(i + 1)
 
             if (x_std < DELTA and y_std < DELTA):
                 break
