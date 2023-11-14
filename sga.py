@@ -12,12 +12,12 @@ if not os.path.exists(PATH):
 
 X_LOW = -10.
 X_HIGH = 10.
-DELTA = 0.05
+DELTA = 0.025
 CHROMOSOME_LEN = 15
 
 
 def target_func(x):
-    if (x >= -0.75 and x <= 0.3):
+    if (x >= -0.3 and x <= 0.3):
         return 0
     return math.cos(3 * x - 15) / math.fabs(x)
 
@@ -106,15 +106,16 @@ class SimpleGeneticAlgorithm:
             pairs = dict(zip(y, x))
 
             y_std = np.std(y)
+            x_std = np.std(x)
             y_max = np.max(y)
             x_max = pairs.get(y_max)
 
             print(
-                f'Поколение: {i + 1:3} | Максимум: ({x_max:5.3f}; {y_max:5.3f}) | Дисперия Y: {y_std:5.3f}')
+                f'Поколение: {i + 1:3} | Максимум: ({x_max:5.3f}; {y_max:5.3f}) | Дисперия X: {x_std:5.3f} | Дисперия Y: {y_std:5.3f}')
 
             # self.plot(i + 1)
 
-            if (y_std < DELTA):
+            if (x_std < DELTA and y_std < DELTA):
                 break
 
 
