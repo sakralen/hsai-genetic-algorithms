@@ -12,7 +12,9 @@ if not os.path.exists(PATH):
 
 X_LOW = -10.
 X_HIGH = 10.
-DELTA = 0.025
+STEP = 0.1
+
+DELTA = 0.1
 CHROMOSOME_LEN = 15
 
 
@@ -74,7 +76,7 @@ class SimpleGeneticAlgorithm:
                 self.population[i] = ''.join(mutated_chromosome)
 
     def plot(self, generation):
-        x_target = np.arange(-10, 10, 0.1)
+        x_target = np.arange(X_LOW, X_HIGH, STEP)
         y_target = list(map(lambda l: target_func(l), x_target))
 
         x_population = list(map(lambda l:
