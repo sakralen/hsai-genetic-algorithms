@@ -1,6 +1,7 @@
-# fix_route, clean_route, concat_subroutes are for neighbour routes!
+# fix_route, clean_route, concat_subroutes, calc_route_length are for neighbour routes!
 
 import random
+import math
 
 
 def fix_route(route):
@@ -123,3 +124,15 @@ def restore_route(route):
         current_vertex = route[current_vertex]
 
     return restored_route
+
+
+def calc_route_length(route, locations):
+    current_vertex = route[0]
+    route_length = math.dist(locations[0], locations[current_vertex])
+
+    while current_vertex != 0:
+        route_length += math.dist(locations[current_vertex],
+                                  locations[route[current_vertex]])
+        current_vertex = route[current_vertex]
+
+    return route_length

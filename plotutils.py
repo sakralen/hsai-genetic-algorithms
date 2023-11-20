@@ -1,10 +1,31 @@
+import os
 import matplotlib.pyplot as plt
+
+from routeutils import calc_route_length
+
+DEFAULT_PATH = os.path.join(os.path.dirname(__file__), 'output/')
+
+
+def save_plot(population_size, generation_max, crossover_prob, mutation_prob, generation, path=DEFAULT_PATH):
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    plt.savefig(
+        path + f'{population_size}_{generation_max}_{crossover_prob}_{mutation_prob}_{generation}.png')
+
+
+def prep_plot(generation, route_length=0):
+    plt.xlabel("X")
+    plt.ylabel("Y")
+    plt.title(f'Generation № {generation}, best length: {route_length:0.0f}')
 
 
 def show_plot():
-    plt.xlabel("X")
-    plt.ylabel("Y")
     plt.show()
+
+
+def clear_plot():
+    plt.clf()
 
 
 def plot_locations(locations):
