@@ -21,7 +21,7 @@ class SalesmanGeneticAlgoritm:
     def execute(self):
         for i in range(0, self.generation_max):
             self.mutate()
-            # self.crossover()
+            self.crossover()
             self.reproduce()
 
             best_route = min(self.population, key=self.target_func)
