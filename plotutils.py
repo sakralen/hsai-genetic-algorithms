@@ -1,7 +1,5 @@
 import matplotlib.pyplot as plt
 
-from routeutils import restore_route
-
 
 def show_plot():
     plt.xlabel("X")
@@ -15,11 +13,9 @@ def plot_locations(locations):
         plt.text(x, y, f"{i}", ha="center", va="bottom")
 
 
-def restore_and_plot_route(route, locations):
-    restored_route = restore_route(route)
-
-    for i in range(len(restored_route) - 1):
-        plot_line(locations[restored_route[i]], locations[restored_route[i + 1]])
+def plot_restored_route(route, locations):
+    for i in range(len(route) - 1):
+        plot_line(locations[route[i]], locations[route[i + 1]])
 
 
 def plot_line(source, dest):
