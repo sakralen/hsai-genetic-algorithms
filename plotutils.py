@@ -29,7 +29,7 @@ def clear_plot():
 
 def plot_locations(locations):
     for i, (x, y) in enumerate(locations):
-        plt.scatter(x, y, color="blue")
+        plt.scatter(x, y, color="C0")
         plt.text(x, y, f"{i}", ha="center", va="bottom")
 
 
@@ -40,4 +40,4 @@ def plot_restored_route(route, locations):
 
 def plot_line(source, dest):
     x_values, y_values = zip(source, dest)
-    plt.plot(x_values, y_values, color="r")
+    plt.plot(x_values, y_values, color="C0")
