@@ -1,7 +1,6 @@
 import os
 import matplotlib.pyplot as plt
 
-from routeutils import calc_route_length
 
 DEFAULT_PATH = os.path.join(os.path.dirname(__file__), 'output/')
 

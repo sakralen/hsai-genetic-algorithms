@@ -1,8 +1,8 @@
-import os
 import random
 import numpy as np
+import math
 
-from routeutils import generate_neighbour_route, calc_route_length, restore_route, fix_route
+from routeutils import generate_neighbour_route, calc_route_length, restore_route
 from plotutils import prep_plot, plot_locations, plot_restored_route, save_plot, clear_plot
 
 
@@ -29,8 +29,10 @@ class SalesmanGeneticAlgoritm:
 
             if (i == 0) or (i == self.generation_max - 1):
                 prep_plot(i + 1, self.target_func(best_route))
+
                 plot_locations(self.locations)
                 plot_restored_route(restore_route(best_route), self.locations)
+
                 save_plot(self.population_size, self.generation_max,
                           self.crossover_prob, self.mutation_prob, i + 1)
                 clear_plot()
@@ -51,17 +53,49 @@ class SalesmanGeneticAlgoritm:
     def crossover(self):
         for i in range(0, self.population_size // 2):
             if random.random() < self.crossover_prob:
+                # route_a = self.population[2 * i]
+                # route_b = self.population[2 * i + 1]
+                # crossover_point = random.randint(1, self.cities_cnt - 2)
+
+                # self.population[2 * i] = route_a[:crossover_point] + \
+                #     route_b[crossover_point:]
+                # self.population[2 * i + 1] = route_b[:crossover_point] + \
+                #     route_a[crossover_point:]
+
+                # fix_route(self.population[2 * i])
+                # fix_route(self.population[2 * i + 1])
+
                 route_a = self.population[2 * i]
                 route_b = self.population[2 * i + 1]
-                crossover_point = random.randint(1, self.cities_cnt - 2)
 
-                self.population[2 * i] = route_a[:crossover_point] + \
-                    route_b[crossover_point:]
-                self.population[2 * i + 1] = route_b[:crossover_point] + \
-                    route_a[crossover_point:]
+                new_route = [-1] * self.cities_cnt
+                not_visited = [i for i in range(self.cities_cnt)]
+                first = random.randint(0, self.cities_cnt - 1)
+                not_visited.pop(first)
 
-                fix_route(self.population[2 * i])
-                fix_route(self.population[2 * i + 1])
+                current = first
+                while len(not_visited) != 0:
+                    a_dist = math.dist(
+                        self.locations[current], self.locations[route_a[current]])
+                    b_dist = math.dist(
+                        self.locations[current], self.locations[route_b[current]])
+
+                    next = route_a[current] if a_dist < b_dist else route_b[current]
+
+                    if next in not_visited:
+                        new_route[current] = next
+                        not_visited.pop(not_visited.index(next))
+                    else:
+                        new_route[current] = not_visited.pop(
+                            random.randint(0, len(not_visited) - 1))
+
+                    current = new_route[current]
+
+                new_route[current] = first
+
+                # TODO: don't do this:
+                self.population[2 * i] = new_route.copy()
+                self.population[2 * i + 1] = new_route.copy()
 
     def reproduce(self):
         values = np.array(
