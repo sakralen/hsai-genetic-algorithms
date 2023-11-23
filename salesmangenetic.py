@@ -2,12 +2,24 @@ import random
 import numpy as np
 import math
 
-from routeutils import generate_neighbour_route, calc_route_length, restore_route
-from plotutils import prep_plot, plot_locations, plot_restored_route, save_plot, clear_plot
+from routeutils import (
+    generate_neighbour_route,
+    calc_route_length,
+    restore_route,
+)
+from plotutils import (
+    prep_plot,
+    plot_locations,
+    plot_restored_route,
+    save_plot,
+    clear_plot,
+)
 
 
 class SalesmanGeneticAlgoritm:
-    def __init__(self, locations, population_size, generation_max, crossover_prob, mutation_prob):
+    def __init__(
+        self, locations, population_size, generation_max, crossover_prob, mutation_prob
+    ):
         self.locations = locations
         self.population_size = population_size
         self.generation_max = generation_max
@@ -15,17 +27,19 @@ class SalesmanGeneticAlgoritm:
         self.mutation_prob = mutation_prob
         self.cities_cnt = len(locations)
 
-        self.population = [generate_neighbour_route(
-            self.cities_cnt) for _ in range(self.population_size)]
+        self.population = [
+            generate_neighbour_route(self.cities_cnt)
+            for _ in range(self.population_size)
+        ]
 
     def execute(self):
         for i in range(0, self.generation_max):
             self.mutate()
-            self.crossover()
-            self.reproduce()
+            children = self.crossover()
+            self.reproduce(children)
 
             best_route = min(self.population, key=self.target_func)
-            print(f'{i}: {self.target_func(best_route):0.0f}')
+            print(f"{i}: {self.target_func(best_route):0.0f}")
 
             if (i == 0) or (i == self.generation_max - 1):
                 prep_plot(i + 1, self.target_func(best_route))
@@ -33,38 +47,47 @@ class SalesmanGeneticAlgoritm:
                 plot_locations(self.locations)
                 plot_restored_route(restore_route(best_route), self.locations)
 
-                save_plot(self.population_size, self.generation_max,
-                          self.crossover_prob, self.mutation_prob, i + 1)
+                save_plot(
+                    self.population_size,
+                    self.generation_max,
+                    self.crossover_prob,
+                    self.mutation_prob,
+                    i + 1,
+                )
                 clear_plot()
 
-    # swaps two inner vertices in a random subroute of length 4
+    # swaps two vertices
     def mutate(self):
         for route in self.population:
             if random.random() < self.mutation_prob:
+                a = random.randint(0, self.cities_cnt - 1)
                 b = random.randint(0, self.cities_cnt - 1)
-                c = route[b]
-                d = route[c]
-                a = route.index(b)
+                while a == b:
+                    b = random.randint(0, self.cities_cnt - 1)
 
-                route[a] = c
-                route[c] = b
-                route[b] = d
+                if route[b] == a:
+                    a, b = b, a
 
+                a_parent = route.index(a)
+                a_child = route[a]
+                b_parent = route.index(b)
+                b_child = route[b]
+
+                if route[a] == b:
+                    route[a_parent] = b
+                    route[a] = b_child
+                    route[b] = a
+                else:
+                    route[a] = b_child
+                    route[b_parent] = a
+                    route[b] = a_child
+                    route[a_parent] = b
+
+    # heuristic crossover
     def crossover(self):
+        children = []
         for i in range(0, self.population_size // 2):
             if random.random() < self.crossover_prob:
-                # route_a = self.population[2 * i]
-                # route_b = self.population[2 * i + 1]
-                # crossover_point = random.randint(1, self.cities_cnt - 2)
-
-                # self.population[2 * i] = route_a[:crossover_point] + \
-                #     route_b[crossover_point:]
-                # self.population[2 * i + 1] = route_b[:crossover_point] + \
-                #     route_a[crossover_point:]
-
-                # fix_route(self.population[2 * i])
-                # fix_route(self.population[2 * i + 1])
-
                 route_a = self.population[2 * i]
                 route_b = self.population[2 * i + 1]
 
@@ -76,9 +99,11 @@ class SalesmanGeneticAlgoritm:
                 current = first
                 while len(not_visited) != 0:
                     a_dist = math.dist(
-                        self.locations[current], self.locations[route_a[current]])
+                        self.locations[current], self.locations[route_a[current]]
+                    )
                     b_dist = math.dist(
-                        self.locations[current], self.locations[route_b[current]])
+                        self.locations[current], self.locations[route_b[current]]
+                    )
 
                     next = route_a[current] if a_dist < b_dist else route_b[current]
 
@@ -87,19 +112,18 @@ class SalesmanGeneticAlgoritm:
                         not_visited.pop(not_visited.index(next))
                     else:
                         new_route[current] = not_visited.pop(
-                            random.randint(0, len(not_visited) - 1))
+                            random.randint(0, len(not_visited) - 1)
+                        )
 
                     current = new_route[current]
 
                 new_route[current] = first
+                children.append(new_route)
+        return children
 
-                # TODO: don't do this:
-                self.population[2 * i] = new_route.copy()
-                self.population[2 * i + 1] = new_route.copy()
-
-    def reproduce(self):
-        values = np.array(
-            list(map(lambda r: -self.target_func(r), self.population)))
+    def reproduce(self, children):
+        self.population += children
+        values = np.array(list(map(lambda r: -self.target_func(r), self.population)))
 
         values -= min(values)
         values += 1
@@ -108,7 +132,8 @@ class SalesmanGeneticAlgoritm:
         values /= sum
 
         self.population = random.choices(
-            self.population, values, k=self.population_size)
+            self.population, values, k=self.population_size
+        )
 
     def target_func(self, route):
         return calc_route_length(route, self.locations)
