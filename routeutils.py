@@ -41,8 +41,18 @@ def calc_route_length(route, locations):
     route_length = math.dist(locations[0], locations[current_vertex])
 
     while current_vertex != 0:
-        route_length += math.dist(locations[current_vertex],
-                                  locations[route[current_vertex]])
+        route_length += math.dist(
+            locations[current_vertex], locations[route[current_vertex]]
+        )
         current_vertex = route[current_vertex]
 
     return route_length
+
+
+def traverse(start, steps, route):
+    current_vertex = start
+
+    for _ in range(steps):
+        current_vertex = route[current_vertex]
+
+    return current_vertex

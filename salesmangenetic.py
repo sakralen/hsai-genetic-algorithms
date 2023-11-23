@@ -6,6 +6,7 @@ from routeutils import (
     generate_neighbour_route,
     calc_route_length,
     restore_route,
+    traverse,
 )
 from plotutils import (
     prep_plot,
@@ -33,37 +34,42 @@ class SalesmanGeneticAlgoritm:
         ]
 
     def execute(self):
+        best_overall = {"route": None, "length": float("inf"), "generation": 0}
         for i in range(0, self.generation_max):
             self.mutate()
             children = self.crossover()
             self.reproduce(children)
 
             best_route = min(self.population, key=self.target_func)
-            print(f"{i}: {self.target_func(best_route):0.0f}")
+            best_length = self.target_func(best_route)
+            print(f"{i}: {best_length:0.0f}")
 
-            if (i == 0) or (i == self.generation_max - 1):
-                prep_plot(i + 1, self.target_func(best_route))
+            if best_length < best_overall["length"]:
+                best_overall["route"] = best_route
+                best_overall["length"] = best_length
+                best_overall["generation"] = i
 
-                plot_locations(self.locations)
-                plot_restored_route(restore_route(best_route), self.locations)
-
-                save_plot(
-                    self.population_size,
-                    self.generation_max,
-                    self.crossover_prob,
-                    self.mutation_prob,
-                    i + 1,
-                )
-                clear_plot()
+        prep_plot(best_overall["generation"], best_overall["length"])
+        plot_locations(self.locations)
+        plot_restored_route(restore_route(best_overall["route"]), self.locations)
+        save_plot(
+            self.population_size,
+            self.generation_max,
+            self.crossover_prob,
+            self.mutation_prob,
+            best_overall["generation"],
+        )
+        clear_plot()
 
     # swaps two vertices
     def mutate(self):
         for route in self.population:
             if random.random() < self.mutation_prob:
+                max_distance = self.cities_cnt // 10
                 a = random.randint(0, self.cities_cnt - 1)
-                b = random.randint(0, self.cities_cnt - 1)
+                b = traverse(a, random.randint(1, max_distance), route)
                 while a == b:
-                    b = random.randint(0, self.cities_cnt - 1)
+                    b = traverse(a, random.randint(1, max_distance), route)
 
                 if route[b] == a:
                     a, b = b, a
