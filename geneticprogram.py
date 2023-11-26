@@ -1,5 +1,6 @@
 import random
 import numpy as np
+from copy import deepcopy
 from tree import Tree
 
 
@@ -16,13 +17,13 @@ def mse(function, tree, points):
 
 class GeneticProgram:
     def __init__(
-        self,
-        population_size,
-        generation_max,
-        crossover_prob,
-        mutation_prob,
-        max_height,
-        points,
+            self,
+            population_size,
+            generation_max,
+            crossover_prob,
+            mutation_prob,
+            max_height,
+            points,
     ):
         self.population_size = population_size
         self.generation_max = generation_max
@@ -54,13 +55,26 @@ class GeneticProgram:
     def mutate(self):
         for tree in self.population:
             if random.random() < self.mutation_prob:
-                pass
+                nodes = tree.get_nodes()
+                node, height = random.choice(list(nodes.items()))
+
+                parent = node.parent
+                no_of_child = parent.children.index(node)
+                parent.children.pop(no_of_child)
+
+                replacement = Tree.generate(self.max_height, self.dim, height).root
+                parent.children.insert(no_of_child, replacement)
+
+                while not tree.is_good(self.points):
+                    parent.children.pop(no_of_child)
+                    replacement = Tree.generate(self.max_height, self.dim, height).root
+                    parent.children.insert(no_of_child, replacement)
 
     def crossover(self):
         for i in range(self.population_size // 2):
             if random.random() < self.crossover_prob:
                 pass
-
+            
     def reproduce(self):
         self.population += self.children
         values = np.array(
@@ -85,9 +99,4 @@ class GeneticProgram:
 
 points = [[x, 1] for x in np.arange(-1, 1.1, 0.1)]
 gp = GeneticProgram(1, 1000, 0.35, 1, 4, points)
-
-population = gp.population
-for tree in population:
-    tree.print()
-    print("\n")
-    print(tree.compute(points[0]))
+gp.mutate()

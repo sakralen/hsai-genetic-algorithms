@@ -64,7 +64,11 @@ class Tree:
         def generate(self):
             root = self.make_random_node()
             queue = [root]
-            nodes = {root: self.height}
+
+            # temporary fix for GeneticProgram.mutate() issue:
+            pseudo_root = Tree.Node(None)
+            pseudo_root.children.append(root)
+            root.parent = pseudo_root
 
             while len(queue) > 0:
                 # looping through nodes on the same level:
@@ -81,10 +85,9 @@ class Tree:
                                 random.randint(0, self.dim - 1), current
                             )
                         current.add_child(child)
-                        nodes[child] = self.height + 1
                 self.height += 1
 
-            return Tree(root, nodes)
+            return Tree(root)
 
         def make_random_node(self, parent=None):
             type = self.choose_rand_terminal()
@@ -100,9 +103,8 @@ class Tree:
             weights = Tree.weights.values()
             return random.choices(Tree.terminals, weights=weights, k=1)[0]
 
-    def __init__(self, root, nodes):
+    def __init__(self, root):
         self.root = root
-        self.nodes = nodes
 
     @staticmethod
     def generate(max_height, dim=2, starting_height=1):
@@ -118,13 +120,13 @@ class Tree:
         return calc_height(self.root)
 
     def print(self):
-        def print_node(node, identation):
-            print("    " * identation + node.__str__())
+        def print_node(node, height):
+            print("    " * (height - 1) + str(height) + ": " + node.__str__())
 
             for child in node.children:
-                print_node(child, identation + 1)
+                print_node(child, height + 1)
 
-        print_node(self.root, 0)
+        print_node(self.root, 1)
 
     def compute(self, point):
         def compute_node(node, point):
@@ -144,3 +146,18 @@ class Tree:
             if self.compute(point) is None:
                 return False
         return True
+
+    def get_nodes(self):
+        queue = [self.root]
+        height = 1
+        nodes = {self.root: height}
+
+        while len(queue) > 0:
+            for _ in range(len(queue)):
+                current = queue.pop(0)
+                for child in current.children:
+                    queue.append(child)
+                    nodes[child] = height + 1
+            height += 1
+
+        return nodes
