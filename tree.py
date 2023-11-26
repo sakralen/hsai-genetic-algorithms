@@ -12,9 +12,10 @@ class Tree:
     terminals = [UNARY, BINARY, ARG]
     weights = {UNARY: 0.25, BINARY: 0.69, ARG: 0.05}
 
+    # commented out functions cause cancer. my visit to oncologist was yesterday. bye.
     functions = {
-        UNARY: [np.fabs, np.sin, np.cos, np.exp],
-        BINARY: [np.add, np.subtract, np.multiply, np.true_divide, np.power],
+        UNARY: [np.fabs, np.sin, np.cos],  # , np.exp],
+        BINARY: [np.add, np.subtract, np.multiply],  # , np.true_divide, np.power],
         ARG: [],
     }
 
@@ -65,11 +66,6 @@ class Tree:
             root = self.make_random_node()
             queue = [root]
 
-            # temporary fix for GeneticProgram.mutate() issue:
-            pseudo_root = Tree.Node(None)
-            pseudo_root.children.append(root)
-            root.parent = pseudo_root
-
             while len(queue) > 0:
                 # looping through nodes on the same level:
                 for _ in range(len(queue)):
@@ -77,7 +73,7 @@ class Tree:
                     # generating children of current:
                     for _ in Tree.productions[current.type]:
                         child = None
-                        if self.height < self.max_height - 1:
+                        if self.height < self.max_height - 2:
                             child = self.make_random_node(current)
                             queue.append(child)
                         else:
@@ -111,13 +107,16 @@ class Tree:
         return Tree.Generator(max_height, dim, starting_height).generate()
 
     def get_height(self):
+        return Tree.get_subtree_height(self.root)
+
+    @staticmethod
+    def get_subtree_height(from_node):
         def calc_height(node):
             if len(node.children) == 0:
                 return 1
-
             return 1 + max(calc_height(child) for child in node.children)
 
-        return calc_height(self.root)
+        return calc_height(from_node)
 
     def print(self):
         def print_node(node, height):
@@ -128,6 +127,7 @@ class Tree:
 
         print_node(self.root, 1)
 
+    # without true_divide(), pow() and exp() there is no exception:
     def compute(self, point):
         def compute_node(node, point):
             if node.type == Tree.ARG:
@@ -141,11 +141,12 @@ class Tree:
         except FloatingPointError:
             return None
 
-    def is_good(self, points):
-        for point in points:
-            if self.compute(point) is None:
-                return False
-        return True
+    # # without true_divide(), pow() and exp() this is not needed:
+    # def is_good(self, points):
+    #     for point in points:
+    #         if self.compute(point) is None:
+    #             return False
+    #     return True
 
     def get_nodes(self):
         queue = [self.root]
