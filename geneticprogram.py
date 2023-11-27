@@ -1,4 +1,6 @@
 import random
+import sys
+from copy import deepcopy
 import numpy as np
 from tree import Tree
 
@@ -49,7 +51,7 @@ class GeneticProgram:
         for i in range(self.generation_max):
             self.mutate()
             self.crossover()
-            # self.reproduce()
+            self.reproduce()
 
     def mutate(self):
         for i in range(len(self.population)):
@@ -96,8 +98,11 @@ class GeneticProgram:
 
         for i in range(self.population_size // 2):
             if random.random() < self.crossover_prob:
-                a_nodes = list(self.population[2 * i].get_nodes().items())[1:]  # removing root
-                b_nodes = list(self.population[2 * i + 1].get_nodes().items())[1:]
+                a_tree = deepcopy(self.population[2 * i])
+                b_tree = deepcopy(self.population[2 * i + 1])
+
+                a_nodes = list(a_tree.get_nodes().items())[1:]  # removing root
+                b_nodes = list(b_tree.get_nodes().items())[1:]
                 random.shuffle(a_nodes)
                 random.shuffle(b_nodes)
 
@@ -119,6 +124,9 @@ class GeneticProgram:
 
                 a_parent.children.insert(a_no_of_child, b_node)
                 b_node.parent = a_parent
+
+                self.population[2 * i] = a_tree
+                self.population[2 * i + 1] = b_tree
 
     def reproduce(self):
         values = np.array(
