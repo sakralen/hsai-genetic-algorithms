@@ -34,7 +34,6 @@ class GeneticProgram:
         self.dim = len(points[0])
 
         self.population = self.generate_population()
-        self.children = []
 
     def generate_population(self):
         population = []
@@ -49,8 +48,8 @@ class GeneticProgram:
     def execute(self):
         for i in range(self.generation_max):
             self.mutate()
-            # self.crossover()
-            self.reproduce()
+            self.crossover()
+            # self.reproduce()
 
     def mutate(self):
         for i in range(len(self.population)):
@@ -122,7 +121,6 @@ class GeneticProgram:
                 b_node.parent = a_parent
 
     def reproduce(self):
-        self.population += self.children
         values = np.array(
             list(
                 map(lambda tree: -self.target_func(tree, self.points), self.population)
