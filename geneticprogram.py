@@ -1,16 +1,15 @@
 import random
-import sys
 from copy import deepcopy
 import numpy as np
 from tree import Tree
 
 
-def given_function(x):
-    return sum(x[i] ** (i - 1) for i in range(len(x)))
+def given_function(x, dim):
+    return sum(x[i] ** (dim + 1) for i in range(len(x)))
 
 
-def mse(function, tree, points):
-    with_function = [function(point) for point in points]
+def mse(function, dim, tree, points):
+    with_function = [function(point, dim) for point in points]
     with_tree = [tree.compute(point) for point in points]
 
     return np.square(np.subtract(with_function, with_tree)).mean()
@@ -135,6 +134,8 @@ class GeneticProgram:
             )
         )
 
+        print(-min(values))
+
         values -= min(values)
         values += 1
 
@@ -146,4 +147,4 @@ class GeneticProgram:
         )
 
     def target_func(self, tree, points):
-        return mse(given_function, tree, points)
+        return mse(given_function, self.dim, tree, points)

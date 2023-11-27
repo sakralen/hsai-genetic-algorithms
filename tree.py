@@ -10,7 +10,7 @@ class Tree:
     ARG = "arg"
 
     terminals = [UNARY, BINARY, ARG]
-    weights = {UNARY: 0.25, BINARY: 0.69, ARG: 0.05}
+    weights = {UNARY: 0.33, BINARY: 0.33, ARG: 0.33}
 
     # commented out functions cause cancer. my visit to oncologist was yesterday. bye.
     functions = {
